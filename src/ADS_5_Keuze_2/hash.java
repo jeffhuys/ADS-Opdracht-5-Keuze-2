@@ -34,7 +34,7 @@ class HashTable {
     }
 
     public int get(int i) {
-        if(hashArray[i] != null) {
+        if (hashArray[i] != null) {
             return hashArray[i].getKey();
         } else {
             return -1;
@@ -61,17 +61,26 @@ class HashTable {
         return key % arraySize;       // hash function
     }
 
-    public int insert(DataItem item) // insert a DataItem
+    public int insert(DataItem item, int type) // insert a DataItem
     // (assumes table not full)
     {
         int key = item.getKey();      // extract key
+        int pos = key;
         int hashVal = hashFunc(key);  // hash the key
         int collisions = 0;
         // until empty cell or -1,
-        while (hashArray[hashVal] != null
-                && hashArray[hashVal].getKey() != -1) {
-            ++hashVal;                 // go to next cell
-            hashVal %= arraySize;      // wraparound if necessary
+        while (hashArray[hashVal] != null && hashArray[hashVal].getKey() != -1) {
+            if (type == 0) {
+                hashVal++;
+                  
+            } else if (type == 1) {
+                hashVal += Math.pow(pos, 2);                 // go to next cell
+                pos++;    
+                
+            }
+            hashVal %= arraySize;    
+            // wraparound if necessary
+            //System.out.println(hashVal);
 
             collisions++;
         }
@@ -79,9 +88,10 @@ class HashTable {
         return collisions;
     }  // end insert()
 
-    public DataItem delete(int key) // delete a DataItem
+    public DataItem delete(int key, int type) // delete a DataItem
     {
         int hashVal = hashFunc(key);  // hash the key
+        int pos = key;
 
         while (hashArray[hashVal] != null) // until empty cell,
         {                               // found the key?
@@ -90,38 +100,56 @@ class HashTable {
                 hashArray[hashVal] = nonItem;       // delete item
                 return temp;                        // return item
             }
-            ++hashVal;                 // go to next cell
+            if (type == 0) {
+                hashVal++;
+            } else if (type == 1) {
+                hashVal += Math.pow(pos, 2);                 // go to next cell
+                pos++;    
+            }
             hashVal %= arraySize;      // wraparound if necessary
         }
         return null;                  // can't find item
     }  // end delete()
 
-    public DataItem find(int key) // find item with key
+    public DataItem find(int key, int type) // find item with key
     {
         int hashVal = hashFunc(key);  // hash the key
         int collisions = 0;
+        int pos = key;
 
         while (hashArray[hashVal] != null) // until empty cell,
         {                               // found the key?
             if (hashArray[hashVal].getKey() == key) {
                 return hashArray[hashVal];   // yes, return item
             }
-            ++hashVal;                 // go to next cell
+            if (type == 0) {
+                hashVal++;
+            } else if (type == 1) {
+                hashVal += Math.pow(pos, 2);                 // go to next cell
+                pos++;    
+            }
             hashVal %= arraySize;      // wraparound if necessary
         }
         return null;                  // can't find item
     }
 
-    public int findCollisions(int key) {
+    public int findCollisions(int key, int type) {
         int hashVal = hashFunc(key);  // hash the key
         int collisions = 0;
+        int pos = key;
 
         while (hashArray[hashVal] != null) // until empty cell,
         {                               // found the key?
             if (hashArray[hashVal].getKey() == key) {
                 //return hashArray[hashVal];   // yes, return item
             }
-            ++hashVal;                 // go to next cell
+            if (type == 0) {
+                hashVal++;
+            } else if (type == 1) {
+                hashVal += Math.pow(pos, 2);                 // go to next cell
+                pos++;
+            }
+            
             hashVal %= arraySize;      // wraparound if necessary
             collisions++;
         }
@@ -134,6 +162,8 @@ class HashTableApp {
     public static void main(String[] args) throws IOException {
         DataItem aDataItem;
         int aKey, size, n, keysPerCell;
+        
+        int calcType = 1;
 
         size = 1009;
 
@@ -178,12 +208,12 @@ class HashTableApp {
             {
                 aKey = (int) (java.lang.Math.random() * keysPerCell * size);
                 aDataItem = new DataItem(aKey);
-                collisions += theHashTable.insert(aDataItem);
+                collisions += theHashTable.insert(aDataItem, calcType);
                 // Tot de helft OOK in de searchTable
                 if (j <= size / 2) {
-                    searchHashTable.insert(aDataItem);
+                    searchHashTable.insert(aDataItem, calcType);
                 } else {
-                    searchHashTable.insert(new DataItem((int) (java.lang.Math.random() * keysPerCell * size)));
+                    searchHashTable.insert(new DataItem((int) (java.lang.Math.random() * keysPerCell * size)), calcType);
                 }
             }
             System.out.println("Collisions bij insert: " + collisions);
@@ -199,8 +229,9 @@ class HashTableApp {
         for (HashTable searchTable : searchTables) {
             collisions = 0;
             for (int i = 0; i < searchTable.size(); i++) {
-                if(searchTable.get(i) != -1)
-                    collisions += insertTables.get(count).findCollisions(searchTable.get(i));
+                if (searchTable.get(i) != -1) {
+                    collisions += insertTables.get(count).findCollisions(searchTable.get(i), calcType);
+                }
             }
             System.out.println("Collisions on find (" + count + "): " + collisions);
             count++;
