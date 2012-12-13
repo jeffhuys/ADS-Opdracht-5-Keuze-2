@@ -22,6 +22,10 @@ class HashTable {
     private DataItem[] hashArray;
     private int arraySize;
     private DataItem nonItem;
+    
+    private final int LINEAR_PROBING = 0;
+    private final int QUADRATIC_PROBING = 1;
+    private final int DOUBLE_HASHING = 2;
 
     public HashTable(int size)
     {
@@ -65,19 +69,19 @@ class HashTable {
     public int insert(DataItem item, int type)
     {
         int key = item.getKey();
-        int pos = key;
+        int pos = 0;
         int hashVal = hashFunc(key);
         int collisions = 0;
         int stepSize = hashFunc2(key);
         while (hashArray[hashVal] != null && hashArray[hashVal].getKey() != -1) {
-            if (type == 0) {
+            if (type == LINEAR_PROBING) {
                 hashVal++;
 
-            } else if (type == 1) {
+            } else if (type == QUADRATIC_PROBING) {
                 hashVal += Math.pow(pos, 2);
                 pos++;
 
-            } else if (type == 2) {
+            } else if (type == DOUBLE_HASHING) {
                 hashVal += stepSize;
             }
             hashVal %= arraySize;
@@ -90,7 +94,7 @@ class HashTable {
     public DataItem delete(int key, int type)
     {
         int hashVal = hashFunc(key);
-        int pos = key;
+        int pos = 0;
         int stepSize = hashFunc2(key);
 
         while (hashArray[hashVal] != null)
@@ -100,12 +104,12 @@ class HashTable {
                 hashArray[hashVal] = nonItem;
                 return temp;
             }
-            if (type == 0) {
+            if (type == LINEAR_PROBING) {
                 hashVal++;
-            } else if (type == 1) {
+            } else if (type == QUADRATIC_PROBING) {
                 hashVal += Math.pow(pos, 2);
                 pos++;
-            } else if (type == 2) {
+            } else if (type == DOUBLE_HASHING) {
                 hashVal += stepSize;
             }
 
@@ -117,7 +121,7 @@ class HashTable {
     public DataItem find(int key, int type)
     {
         int hashVal = hashFunc(key);
-        int pos = key;
+        int pos = 0;
         int stepSize = hashFunc2(key);
 
         while (hashArray[hashVal] != null)
@@ -125,12 +129,12 @@ class HashTable {
             if (hashArray[hashVal].getKey() == key) {
                 return hashArray[hashVal];
             }
-            if (type == 0) {
+            if (type == LINEAR_PROBING) {
                 hashVal++;
-            } else if (type == 1) {
+            } else if (type == QUADRATIC_PROBING) {
                 hashVal += Math.pow(pos, 2);
                 pos++;
-            } else if (type == 2) {
+            } else if (type == DOUBLE_HASHING) {
                 hashVal += stepSize;
             }
             hashVal %= arraySize;
@@ -141,19 +145,23 @@ class HashTable {
     public int findCollisions(int key, int type) {
         int hashVal = hashFunc(key); 
         int collisions = 0;
-        int pos = key;
+        int pos = 0;
         int stepSize = hashFunc2(key);
 
         while (hashArray[hashVal] != null)
         {
-            if (type == 0) {
+            if (hashArray[hashVal].getKey() == key) {
+                return collisions;
+            }
+            if (type == LINEAR_PROBING) {
                 hashVal++;
-            } else if (type == 1) {
+            } else if (type == QUADRATIC_PROBING) {
                 hashVal += Math.pow(pos, 2);
                 pos++;
-            } else if (type == 2) {
+            } else if (type == DOUBLE_HASHING) {
                 hashVal += stepSize;
             }
+
 
             hashVal %= arraySize;
             collisions++;
@@ -189,9 +197,9 @@ class HashTableApp {
                     break;
             }
 
-            size = 1009;
+            size = 4999;
 
-            int percentage = (size / 100) * 65;
+            int fillSize = 0;
             HashTable theHashTable = null;
             HashTable searchHashTable = null;
 
@@ -206,16 +214,16 @@ class HashTableApp {
             while (counter < 4) {
                 switch (counter) {
                     case 0:
-                        percentage = (size / 100) * 65;
+                        fillSize = (size / 100) * 65;
                         break;
                     case 1:
-                        percentage = (size / 100) * 75;
+                        fillSize = (size / 100) * 75;
                         break;
                     case 2:
-                        percentage = (size / 100) * 85;
+                        fillSize = (size / 100) * 85;
                         break;
                     case 3:
-                        percentage = (size / 100) * 95;
+                        fillSize = (size / 100) * 95;
                         break;
                 }
                 counter++;
@@ -225,7 +233,7 @@ class HashTableApp {
 
                 int collisions = 0;
 
-                for (int j = 0; j < percentage; j++)
+                for (int j = 0; j < fillSize; j++)
                 {
                     aKey = (int) (java.lang.Math.random() * keysPerCell * size);
                     aDataItem = new DataItem(aKey);
