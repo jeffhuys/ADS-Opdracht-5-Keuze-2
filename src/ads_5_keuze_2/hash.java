@@ -78,7 +78,11 @@ class HashTable {
                 hashVal++;
 
             } else if (type == QUADRATIC_PROBING) {
-                hashVal += Math.pow(pos, 2);
+                if(pos > 0)
+                {
+                    hashVal = hashFunc(key); 
+                    hashVal = (int) (hashVal + Math.pow(pos, 2));
+                }
                 pos++;
 
             } else if (type == DOUBLE_HASHING) {
@@ -107,7 +111,11 @@ class HashTable {
             if (type == LINEAR_PROBING) {
                 hashVal++;
             } else if (type == QUADRATIC_PROBING) {
-                hashVal += Math.pow(pos, 2);
+                if(pos > 0)
+                {
+                    hashVal = hashFunc(key); 
+                    hashVal = (int) (hashVal + Math.pow(pos, 2));
+                }
                 pos++;
             } else if (type == DOUBLE_HASHING) {
                 hashVal += stepSize;
@@ -132,7 +140,11 @@ class HashTable {
             if (type == LINEAR_PROBING) {
                 hashVal++;
             } else if (type == QUADRATIC_PROBING) {
-                hashVal += Math.pow(pos, 2);
+               if(pos > 0)
+                {
+                    hashVal = hashFunc(key); 
+                    hashVal = (int) (hashVal + Math.pow(pos, 2));
+                }
                 pos++;
             } else if (type == DOUBLE_HASHING) {
                 hashVal += stepSize;
@@ -153,23 +165,33 @@ class HashTable {
             if (hashArray[hashVal].getKey() == key) {
                 return collisions;
             }
+            else
+            {
+                collisions++;
+            }
             if (type == LINEAR_PROBING) {
                 hashVal++;
             } else if (type == QUADRATIC_PROBING) {
-                hashVal += Math.pow(pos, 2);
+                if(pos > 0)
+                {
+                    hashVal = hashFunc(key); 
+                    hashVal = (int) (hashVal + Math.pow(pos, 2));
+                }
                 pos++;
+                
             } else if (type == DOUBLE_HASHING) {
                 hashVal += stepSize;
             }
 
 
             hashVal %= arraySize;
-            collisions++;
+            
         }
         return collisions;
     }
 }
 
+//comment
 class HashTableApp {
 
     public static void main(String[] args) throws IOException {
@@ -197,7 +219,7 @@ class HashTableApp {
                     break;
             }
 
-            size = 4999;
+            size = 1009;
 
             int fillSize = 0;
             HashTable theHashTable = null;
